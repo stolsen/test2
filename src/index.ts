@@ -1,5 +1,6 @@
-import { settings, SCALE_MODES, Application, Sprite, utils, Text, TextStyle, Graphics } from 'pixi.js'
-import { dialog } from './dialog'
+import { settings, SCALE_MODES, Application, Sprite, utils, Text, TextStyle, Container, Texture } from 'pixi.js' //, Graphics
+import { dialog } from './component/dialog'
+import { TabDialog } from './component/TabDialog'
 //import * as Pixi from 'pixi.js'
 
 // Use the native window resolution as the default resolution
@@ -23,7 +24,7 @@ const app = new Application({
 	resolution: scale,
 	antialias: true,
 	autoDensity: true,
-	transparent: false,
+  backgroundAlpha: 0,
 	backgroundColor: 0x0000FF,
 	width: w,
 	height: h,
@@ -37,8 +38,8 @@ clampy.anchor.set(0.5);
 clampy.x = app.screen.width / 2;
 clampy.y = app.screen.height / 2;
 
-const enlargedHeight = Math.floor(h);
-app.view.style.height = `${enlargedHeight}px`
+//const enlargedHeight = Math.floor(h);
+//app.view.style.height = `${enlargedHeight}px`
 
 app.stage.addChild(clampy);
 
@@ -52,6 +53,7 @@ const text = new Text("Click here to open the dialog window", textStyle);
 
 // Set the text object's interactive property to true
 text.interactive = true;
+//text.buttonMode = true;
 
 // Add the text object to the stage
 app.stage.addChild(text);
@@ -63,7 +65,34 @@ text.on("pointerdown", function() {
 		dialog1.show()
 });
 
-var ws = new WebSocket("ws://92.220.168.140:8080/echo");
+const tabDialog = new TabDialog();
+tabDialog.x = 200
+tabDialog.y = 200
+tabDialog.width = 200
+tabDialog.height = 200
+tabDialog.visible = true;
+tabDialog.zIndex = 1;
+
+const randomColor = Math.floor(Math.random() * 16777215);
+const bg = new Sprite(Texture.WHITE);
+bg.width = 200;
+bg.height = 200;
+bg.tint = randomColor;
+
+// Create some tabs and add them to the dialog
+const tab1 = new Container();
+tab1.addChild(bg)
+tab1.addChild(new Text("Tab 1 Content"));
+tabDialog.addTab("Tab 1", tab1);
+
+const tab2 = new Container();
+tab2.addChild(new Text("Tab 2 Content"));
+tabDialog.addTab("Tab 2", tab2);
+
+// Add the tabs to the stage
+app.stage.addChild(tabDialog);
+
+/* var ws = new WebSocket("ws://92.220.168.140:8080/echo");
 
 ws.onopen = function(_evt) {
   console.log("OPEN");
@@ -100,4 +129,4 @@ function rect(x: number, y: number, w: number, h: number) {
   
   obj.drawRect(x, y, w, h);
   // app.stage.addChild(obj);
-}
+} */

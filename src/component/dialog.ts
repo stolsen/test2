@@ -1,4 +1,5 @@
 import { Application, Container, Text, TextStyle, Sprite, Texture } from "pixi.js"
+import { button } from "./button"
 
 export class dialog {
   dialogContainer: Container = new Container
@@ -60,37 +61,55 @@ export class dialog {
     // Add the message text to the dialog container
     dialogContainer.addChild(messageText);
 
-    // Create a new button to close the dialog
-    const closeButton = new Text("Close");
+    const closeBut = new button("Lukk", dialogContainer.width - 120, dialogContainer.height - 50, 110, 40)
 
-    // Set the button's position and style
-    closeButton.x = dialogContainer.width - 120;
-    closeButton.y = dialogContainer.height - 50;
-    closeButton.style = new TextStyle({
-      fontSize: 40
-    });
+    dialogContainer.addChild(closeBut.container)
 
-    // Set the button's interactive property to true
-    closeButton.interactive = true;
-    closeButton.buttonMode = true;
-
-    // Add the button to the dialog container
-    dialogContainer.addChild(closeButton);
-
-    // Add a click event listener to the button
-    closeButton.on("pointerdown", function() {
-      // Close the dialog here
+    closeBut.container.on("click", function() {
+      // Open the dialog window here
       dialogContainer.visible = false
     });
 
+    function onDragMove(event: any) {
+      if (dragTarget) {
+          dragTarget.parent.toLocal(event.global, null, dragTarget.position);
+      }
+    }
+
+    const onDragStart = () => {
+        // store a reference to the data
+        // the reason for this is because of multitouch
+        // we want to track the movement of this particular touch
+        // this.data = event.data;
+        dialogContainer.alpha = 0.5;
+        dragTarget = dialogContainer//this;
+        console.log(dragTarget)
+        app.stage.on('pointermove', onDragMove);
+    }
+
+    function onDragEnd() {
+        if (dragTarget) {
+            app.stage.off('pointermove', onDragMove);
+            dragTarget.alpha = 1;
+            dragTarget = null;
+        }
+    }
+
     dialogContainer.interactive = true;
-    //dialogContainer.buttonMode = true;
-    top.buttonMode = true;
+    //top.buttonMode = true;
     top.interactive = true;
+    top.cursor = 'pointer'
+    top.on("pointerdown", onDragStart, top)
+
+    let dragTarget: any = null;
+    app.stage.interactive = true;
+    app.stage.hitArea = app.screen;
+    app.stage.on('pointerup', onDragEnd);
+    app.stage.on('pointerupoutside', onDragEnd);
 
     // setup events for mouse + touch using
     // the pointer events
-    this.dialogContainer
+    /*this.dialogContainer
       .on("pointerdown", (event) => {
         this.data = event.data
         let obj = event.currentTarget
@@ -111,7 +130,7 @@ export class dialog {
           this.dialogContainer.x = newPosition.x-this.xdiff
           this.dialogContainer.y = newPosition.y
         }
-      })
+      })*/
   }
 
   show() {
