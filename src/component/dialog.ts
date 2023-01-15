@@ -5,7 +5,6 @@ export class dialog {
   dialogContainer: Container = new Container
   data: any
   xdiff: number = 0
-  ydiff: number = 99
 
   constructor(app: Application) {
     
@@ -70,20 +69,21 @@ export class dialog {
       dialogContainer.visible = false
     });
 
-    function onDragMove(event: any) {
+    const onDragMove = (event: any) => {
       if (dragTarget) {
+          event.global.x = event.global.x - this.xdiff
           dragTarget.parent.toLocal(event.global, null, dragTarget.position);
       }
     }
 
-    const onDragStart = () => {
+    const onDragStart = (event: any) => {
         // store a reference to the data
         // the reason for this is because of multitouch
         // we want to track the movement of this particular touch
         // this.data = event.data;
         dialogContainer.alpha = 0.5;
-        dragTarget = dialogContainer//this;
-        console.log(dragTarget)
+        dragTarget = dialogContainer
+        this.xdiff = Math.abs(event.global.x - dragTarget.position._x)
         app.stage.on('pointermove', onDragMove);
     }
 
@@ -106,31 +106,6 @@ export class dialog {
     app.stage.hitArea = app.screen;
     app.stage.on('pointerup', onDragEnd);
     app.stage.on('pointerupoutside', onDragEnd);
-
-    // setup events for mouse + touch using
-    // the pointer events
-    /*this.dialogContainer
-      .on("pointerdown", (event) => {
-        this.data = event.data
-        let obj = event.currentTarget
-        let newPosition = this.data.getLocalPosition(obj.parent)
-        this.xdiff = Math.abs(this.dialogContainer.x - newPosition.x)
-        this.ydiff = Math.abs(this.dialogContainer.y - newPosition.y)
-      })
-      .on("pointerup", () => {
-        this.data = null
-      })
-      .on("pointerupoutside", () => {
-        this.data = null
-      })
-      .on("pointermove", (event) => {
-        let obj = event.currentTarget
-        if (this.data != null && this.ydiff < 20) {
-          let newPosition = this.data.getLocalPosition(obj.parent)
-          this.dialogContainer.x = newPosition.x-this.xdiff
-          this.dialogContainer.y = newPosition.y
-        }
-      })*/
   }
 
   show() {

@@ -47,13 +47,5 @@ export class button {
     this.container.on("pointerout", function() {
       bg.tint = NORMAL;
     });
-
-    // Add a click event listener to the button
-    this.container.on("click", this.onClick)
-  }
-
-  onClick() {
-    // Handle the button click here
-    console.log("11111111111111111111111")
   }
 }
